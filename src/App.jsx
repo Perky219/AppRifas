@@ -1,4 +1,8 @@
 import { useState } from "react";
+import ExportModal from "./components/ExportModal";
+
+import { generarExcel } from "./utils/exportExcel";
+import { generarPDF } from "./utils/exportPDF";
 
 function App() {
   const [socios, setSocios] = useState(null);
@@ -6,6 +10,8 @@ function App() {
 
   const [rifando, setRifando] = useState(false);
   const [ganadores, setGanadores] = useState(null);
+
+  const [mostrarModal, setMostrarModal] = useState(false);
 
   // Leer CSV
   const leerCSV = (file, setState) => {
@@ -23,19 +29,16 @@ function App() {
 
   // Función de rifa
   const realizarRifa = () => {
-    setRifando(true); // mostrar animación
+    setRifando(true);
 
     setTimeout(() => {
-      // Clonar arrays
       const participantes = [...socios];
       const premiosLista = [...premios];
 
-      // Mezclar
       participantes.sort(() => Math.random() - 0.5);
       premiosLista.sort(() => Math.random() - 0.5);
 
       const cantidad = Math.min(participantes.length, premiosLista.length);
-
       const resultados = [];
 
       for (let i = 0; i < cantidad; i++) {
@@ -48,10 +51,10 @@ function App() {
 
       setGanadores(resultados);
       setRifando(false);
-    }, 3500); // 3.5 segundos de “tómbola”
+    }, 3500);
   };
 
-  // Si ya hay ganadores → mostrar lista final
+  // VISTA: Tabla final de ganadores
   if (ganadores) {
     return (
       <div className="h-screen w-full bg-gray-900 text-white flex flex-col items-center p-10 overflow-hidden">
@@ -83,21 +86,40 @@ function App() {
         {/* BOTÓN EXPORTAR */}
         <button
           className="mt-8 px-10 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold"
-          onClick={() => console.log("Exportación pendiente")}
+          onClick={() => setMostrarModal(true)}
         >
           Exportar
         </button>
+
+        {/* MODAL */}
+        {mostrarModal && (
+          <ExportModal
+            onClose={() => setMostrarModal(false)}
+            onConfirm={async (datos) => {
+              setMostrarModal(false);
+
+              // Excel
+              if (datos.exportExcel) {
+                await generarExcel(datos, ganadores);
+              }
+
+              // PDF
+              if (datos.exportPDF) {
+                await generarPDF(datos, ganadores);
+              }
+            }}
+          />
+        )}
       </div>
     );
   }
 
-  // Si está rifando → mostrar animación
+  // VISTA: Animación de rifa
   if (rifando) {
     return (
       <div className="h-screen w-full bg-gray-900 text-white flex flex-col justify-center items-center">
         <h1 className="text-4xl font-bold mb-8">Realizando la Rifa...</h1>
 
-        {/* Tómbola SVG girando */}
         <svg
           className="animate-spin h-32 w-32 text-purple-400"
           fill="none"
@@ -116,7 +138,7 @@ function App() {
     );
   }
 
-  // Vista normal inicial
+  // VISTA: Pantalla inicial
   return (
     <div className="h-screen w-full bg-gray-900 text-white flex flex-col items-center p-10 overflow-hidden">
       <h1 className="text-5xl font-extrabold mb-12 text-center">
