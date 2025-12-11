@@ -4,39 +4,132 @@ function App() {
   const [socios, setSocios] = useState(null);
   const [premios, setPremios] = useState(null);
 
-  // Función para leer CSV sencillo
+  const [rifando, setRifando] = useState(false);
+  const [ganadores, setGanadores] = useState(null);
+
+  // Leer CSV
   const leerCSV = (file, setState) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       const texto = event.target.result;
-
       const filas = texto
         .trim()
         .split("\n")
         .map((line) => line.split(","));
-
       setState(filas);
     };
-
     reader.readAsText(file);
   };
 
+  // Función de rifa
+  const realizarRifa = () => {
+    setRifando(true); // mostrar animación
+
+    setTimeout(() => {
+      // Clonar arrays
+      const participantes = [...socios];
+      const premiosLista = [...premios];
+
+      // Mezclar
+      participantes.sort(() => Math.random() - 0.5);
+      premiosLista.sort(() => Math.random() - 0.5);
+
+      const cantidad = Math.min(participantes.length, premiosLista.length);
+
+      const resultados = [];
+
+      for (let i = 0; i < cantidad; i++) {
+        resultados.push({
+          cedula: participantes[i][0],
+          nombre: participantes[i][1],
+          premio: premiosLista[i][1],
+        });
+      }
+
+      setGanadores(resultados);
+      setRifando(false);
+    }, 3500); // 3.5 segundos de “tómbola”
+  };
+
+  // Si ya hay ganadores → mostrar lista final
+  if (ganadores) {
+    return (
+      <div className="h-screen w-full bg-gray-900 text-white flex flex-col items-center p-10 overflow-hidden">
+        <h1 className="text-5xl font-extrabold mb-12 text-center">
+          Resultados de la Rifa
+        </h1>
+
+        <div className="bg-gray-800 p-8 rounded-xl shadow-lg w-full max-w-4xl overflow-auto max-h-[70vh]">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-gray-700">
+                <th className="py-2 px-2 font-semibold w-1/4">Cédula</th>
+                <th className="py-2 px-2 font-semibold w-1/4">Nombre</th>
+                <th className="py-2 px-2 font-semibold w-2/4">Premio</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ganadores.map((g, i) => (
+                <tr key={i} className="border-b border-gray-700">
+                  <td className="py-2 px-2">{g.cedula}</td>
+                  <td className="py-2 px-2">{g.nombre}</td>
+                  <td className="py-2 px-2">{g.premio}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* BOTÓN EXPORTAR */}
+        <button
+          className="mt-8 px-10 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold"
+          onClick={() => console.log("Exportación pendiente")}
+        >
+          Exportar
+        </button>
+      </div>
+    );
+  }
+
+  // Si está rifando → mostrar animación
+  if (rifando) {
+    return (
+      <div className="h-screen w-full bg-gray-900 text-white flex flex-col justify-center items-center">
+        <h1 className="text-4xl font-bold mb-8">Realizando la Rifa...</h1>
+
+        {/* Tómbola SVG girando */}
+        <svg
+          className="animate-spin h-32 w-32 text-purple-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <circle cx="12" cy="12" r="10" strokeWidth="4" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="4"
+            d="M12 6v6l4 2"
+          />
+        </svg>
+      </div>
+    );
+  }
+
+  // Vista normal inicial
   return (
     <div className="h-screen w-full bg-gray-900 text-white flex flex-col items-center p-10 overflow-hidden">
-      {/* Título principal */}
       <h1 className="text-5xl font-extrabold mb-12 text-center">
         Sistema de Rifas
       </h1>
 
-      {/* Contenedor dividido en 2 columnas */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 w-full max-w-6xl overflow-hidden">
-        {/* COLUMNA IZQUIERDA: PARTICIPANTES */}
+        {/* PARTICIPANTES */}
         <div className="flex flex-col bg-gray-800 p-8 rounded-xl shadow-lg w-full max-h-[70vh] overflow-hidden self-start">
           <h2 className="text-2xl font-bold mb-6 text-center">
             Lista de Participantes
           </h2>
 
-          {/* Si no hay socios, mostrar botón */}
           {!Array.isArray(socios) && (
             <label className="mx-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 transition rounded-lg text-lg cursor-pointer">
               Subir CSV
@@ -49,8 +142,7 @@ function App() {
             </label>
           )}
 
-          {/* Si hay socios, mostrar tabla */}
-          {Array.isArray(socios) && socios.length > 0 && (
+          {Array.isArray(socios) && (
             <div className="w-full mt-4 overflow-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -72,13 +164,12 @@ function App() {
           )}
         </div>
 
-        {/* COLUMNA DERECHA: PREMIOS */}
+        {/* PREMIOS */}
         <div className="flex flex-col bg-gray-800 p-8 rounded-xl shadow-lg w-full max-h-[70vh] overflow-hidden self-start">
           <h2 className="text-2xl font-bold mb-6 text-center">
             Lista de Premios
           </h2>
 
-          {/* Botón si no se han cargado premios */}
           {!Array.isArray(premios) && (
             <label className="mx-auto px-6 py-3 bg-green-600 hover:bg-green-700 transition rounded-lg text-lg cursor-pointer">
               Subir CSV
@@ -91,8 +182,7 @@ function App() {
             </label>
           )}
 
-          {/* Tabla si ya hay premios */}
-          {Array.isArray(premios) && premios.length > 0 && (
+          {Array.isArray(premios) && (
             <div className="w-full mt-4 overflow-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
@@ -117,9 +207,12 @@ function App() {
         </div>
       </div>
 
-      {/* BOTÓN RIFAR (solo aparece si ambas listas existen) */}
+      {/* BOTÓN RIFAR */}
       {Array.isArray(socios) && Array.isArray(premios) && (
-        <button className="mt-8 px-10 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-xl font-bold">
+        <button
+          className="mt-8 px-10 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-xl font-bold"
+          onClick={realizarRifa}
+        >
           Rifar
         </button>
       )}
