@@ -11,9 +11,11 @@ function App() {
   const [rifando, setRifando] = useState(false);
   const [ganadores, setGanadores] = useState(null);
 
+  const [modoRifa, setModoRifa] = useState(null); // "instantanea" | "progresiva"
+  const [indiceActual, setIndiceActual] = useState(0);
+
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  // Leer CSV
   const leerCSV = (file, setState) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -27,35 +29,58 @@ function App() {
     reader.readAsText(file);
   };
 
-  // Función de rifa
-  const realizarRifa = () => {
+  const calcularGanadores = () => {
+    const participantes = [...socios];
+    const premiosLista = [...premios];
+
+    participantes.sort(() => Math.random() - 0.5);
+    premiosLista.sort(() => Math.random() - 0.5);
+
+    const cantidad = Math.min(participantes.length, premiosLista.length);
+    const resultados = [];
+
+    for (let i = 0; i < cantidad; i++) {
+      resultados.push({
+        cedula: participantes[i][0],
+        nombre: participantes[i][1],
+        premio: premiosLista[i][1],
+      });
+    }
+
+    return resultados;
+  };
+
+  const rifaInstantanea = () => {
+    setModoRifa("instantanea");
     setRifando(true);
 
     setTimeout(() => {
-      const participantes = [...socios];
-      const premiosLista = [...premios];
-
-      participantes.sort(() => Math.random() - 0.5);
-      premiosLista.sort(() => Math.random() - 0.5);
-
-      const cantidad = Math.min(participantes.length, premiosLista.length);
-      const resultados = [];
-
-      for (let i = 0; i < cantidad; i++) {
-        resultados.push({
-          cedula: participantes[i][0],
-          nombre: participantes[i][1],
-          premio: premiosLista[i][1],
-        });
-      }
-
-      setGanadores(resultados);
+      setGanadores(calcularGanadores());
       setRifando(false);
     }, 3500);
   };
 
-  // VISTA: Tabla final de ganadores
+  const rifaProgresiva = () => {
+    setModoRifa("progresiva");
+    setIndiceActual(1);
+    setRifando(true);
+
+    setTimeout(() => {
+      setGanadores(calcularGanadores());
+      setRifando(false);
+    }, 1000);
+  };
+
   if (ganadores) {
+    const ganadoresVisibles =
+      modoRifa === "progresiva"
+        ? ganadores.slice(0, indiceActual)
+        : ganadores;
+
+    const rifaTerminada =
+      modoRifa === "instantanea" ||
+      indiceActual >= ganadores.length;
+
     return (
       <div className="h-screen w-full bg-gray-900 text-white flex flex-col items-center p-10 overflow-hidden">
         <h1 className="text-5xl font-extrabold mb-12 text-center">
@@ -72,7 +97,7 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {ganadores.map((g, i) => (
+              {ganadoresVisibles.map((g, i) => (
                 <tr key={i} className="border-b border-gray-700">
                   <td className="py-2 px-2">{g.cedula}</td>
                   <td className="py-2 px-2">{g.nombre}</td>
@@ -83,38 +108,48 @@ function App() {
           </table>
         </div>
 
+        {/* BOTÓN SIGUIENTE */}
+        {modoRifa === "progresiva" && !rifaTerminada && (
+          <button
+            className="mt-8 px-10 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-xl font-bold"
+            onClick={() => setIndiceActual((prev) => prev + 1)}
+          >
+            Siguiente
+          </button>
+        )}
+
         {/* BOTÓN EXPORTAR */}
-        <button
-          className="mt-8 px-10 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold"
-          onClick={() => setMostrarModal(true)}
-        >
-          Exportar
-        </button>
+        {rifaTerminada && (
+          <>
+            <button
+              className="mt-8 px-10 py-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold"
+              onClick={() => setMostrarModal(true)}
+            >
+              Exportar
+            </button>
 
-        {/* MODAL */}
-        {mostrarModal && (
-          <ExportModal
-            onClose={() => setMostrarModal(false)}
-            onConfirm={async (datos) => {
-              setMostrarModal(false);
+            {mostrarModal && (
+              <ExportModal
+                onClose={() => setMostrarModal(false)}
+                onConfirm={async (datos) => {
+                  setMostrarModal(false);
 
-              // Excel
-              if (datos.exportExcel) {
-                await generarExcel(datos, ganadores);
-              }
+                  if (datos.exportExcel) {
+                    await generarExcel(datos, ganadores);
+                  }
 
-              // PDF
-              if (datos.exportPDF) {
-                await generarPDF(datos, ganadores);
-              }
-            }}
-          />
+                  if (datos.exportPDF) {
+                    await generarPDF(datos, ganadores);
+                  }
+                }}
+              />
+            )}
+          </>
         )}
       </div>
     );
   }
 
-  // VISTA: Animación de rifa
   if (rifando) {
     return (
       <div className="h-screen w-full bg-gray-900 text-white flex flex-col justify-center items-center">
@@ -138,7 +173,6 @@ function App() {
     );
   }
 
-  // VISTA: Pantalla inicial
   return (
     <div className="h-screen w-full bg-gray-900 text-white flex flex-col items-center p-10 overflow-hidden">
       <h1 className="text-5xl font-extrabold mb-12 text-center">
@@ -229,14 +263,23 @@ function App() {
         </div>
       </div>
 
-      {/* BOTÓN RIFAR */}
+      {/* BOTONES DE RIFA */}
       {Array.isArray(socios) && Array.isArray(premios) && (
-        <button
-          className="mt-8 px-10 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-xl font-bold"
-          onClick={realizarRifa}
-        >
-          Rifar
-        </button>
+        <div className="mt-8 flex gap-6">
+          <button
+            className="px-10 py-4 bg-purple-600 hover:bg-purple-700 rounded-lg text-xl font-bold"
+            onClick={rifaInstantanea}
+          >
+            Rifa instantánea
+          </button>
+
+          <button
+            className="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-xl font-bold"
+            onClick={rifaProgresiva}
+          >
+            Rifa progresiva
+          </button>
+        </div>
       )}
     </div>
   );
