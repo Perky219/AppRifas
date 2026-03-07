@@ -1,4 +1,5 @@
 import { useState } from "react";
+import fondo from '../assets/fondo.jpeg';
 
 function ExportModal({ onClose, onConfirm }) {
   const [logo, setLogo] = useState(null);
@@ -32,35 +33,47 @@ function ExportModal({ onClose, onConfirm }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center">
-      <div className="bg-gray-800 p-8 rounded-xl w-full max-w-lg shadow-xl">
-        <h2 className="text-2xl font-bold mb-6 text-center">
+    <div 
+      className="fixed inset-0 flex justify-center items-center z-50 p-4"
+      style={{
+        backgroundImage: `url(${fondo})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay con gradiente */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900/80"></div>
+      
+      {/* Modal con glassmorphism */}
+      <div className="relative bg-white/10 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md shadow-2xl border border-cyan-400/30 max-h-[85vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4 text-center text-cyan-300 drop-shadow-lg">
           Exportar Ganadores
         </h2>
 
         {/* LOGO */}
-        <div className="mb-6">
-          <span className="font-semibold block mb-2">Subir Logo:</span>
+        <div className="mb-4">
+          <span className="font-semibold block mb-2 text-white text-sm">Subir Logo:</span>
 
           {/* Contenedor centrado */}
           <div className="flex justify-center">
             <label
-              className="min-w-[220px] max-w-[260px] h-[140px]
-                 flex flex-col items-center justify-center p-3
-                 border-2 border-dashed border-gray-500 rounded-md
-                 cursor-pointer hover:border-blue-400 transition text-center
-                 bg-gray-900"
+              className="w-[180px] h-[100px]
+                 flex flex-col items-center justify-center p-2
+                 border-2 border-dashed border-cyan-400/50 rounded-lg
+                 cursor-pointer hover:border-cyan-300 hover:bg-white/5 transition-all text-center
+                 bg-white/5 backdrop-blur-sm"
             >
               {/* Si NO hay logo → texto */}
               {!logo && (
-                <span className="text-sm text-gray-300">
+                <span className="text-xs text-gray-200">
                   Seleccionar archivo
                 </span>
               )}
 
               {/* Si hay logo → vista previa dentro del cuadro */}
               {logo && (
-                <img src={logo} className="max-h-[120px] object-contain" />
+                <img src={logo} alt="Logo preview" className="max-h-[85px] object-contain" />
               )}
 
               <input
@@ -73,78 +86,83 @@ function ExportModal({ onClose, onConfirm }) {
           </div>
 
           {/* Texto del archivo abajo */}
-          <p className="text-sm text-gray-400 text-center mt-2">
+          <p className="text-xs text-gray-300 text-center mt-1">
             {logoFile ? logoFile.name : "Ningún archivo seleccionado"}
           </p>
         </div>
 
         {/* CAMPOS */}
-        <div className="mb-4">
-          <label className="font-semibold">Centro de Trabajo:</label>
+        <div className="mb-3">
+          <label className="font-semibold text-white text-sm">Centro de Trabajo:</label>
           <input
             type="text"
             value={centro}
             onChange={(e) => setCentro(e.target.value)}
-            className="w-full mt-1 p-2 bg-gray-700 rounded"
+            className="w-full mt-1 p-2 text-sm bg-white/10 backdrop-blur-sm rounded-lg text-white placeholder-gray-400 border border-cyan-400/30 focus:border-cyan-400 focus:outline-none transition-all"
+            placeholder="Ingrese el centro de trabajo"
           />
         </div>
 
-        <div className="mb-4">
-          <label className="font-semibold">Unidad Programática:</label>
+        <div className="mb-3">
+          <label className="font-semibold text-white text-sm">Unidad Programática:</label>
           <input
             type="text"
             value={up}
             onChange={(e) => setUp(e.target.value)}
-            className="w-full mt-1 p-2 bg-gray-700 rounded"
+            className="w-full mt-1 p-2 text-sm bg-white/10 backdrop-blur-sm rounded-lg text-white placeholder-gray-400 border border-cyan-400/30 focus:border-cyan-400 focus:outline-none transition-all"
+            placeholder="Ingrese la unidad programática"
           />
         </div>
 
-        <div className="mb-4">
-          <label className="font-semibold">Actividad:</label>
+        <div className="mb-3">
+          <label className="font-semibold text-white text-sm">Actividad:</label>
           <input
             type="text"
             value={actividad}
             onChange={(e) => setActividad(e.target.value)}
-            className="w-full mt-1 p-2 bg-gray-700 rounded"
+            className="w-full mt-1 p-2 text-sm bg-white/10 backdrop-blur-sm rounded-lg text-white placeholder-gray-400 border border-cyan-400/30 focus:border-cyan-400 focus:outline-none transition-all"
+            placeholder="Ingrese la actividad"
           />
         </div>
 
         {/* FORMATOS */}
         <div className="mb-4">
-          <span className="font-semibold">Formatos:</span>
+          <span className="font-semibold text-white block mb-2 text-sm">Formatos de Exportación:</span>
 
-          <div className="mt-2 flex flex-col gap-2">
-            <label>
+          <div className="flex flex-col gap-2 bg-white/5 backdrop-blur-sm p-3 rounded-lg border border-cyan-400/20">
+            <label className="flex items-center cursor-pointer hover:bg-white/5 px-2 py-1 rounded transition-all">
               <input
                 type="checkbox"
                 checked={exportPDF}
                 onChange={() => setExportPDF(!exportPDF)}
+                className="w-4 h-4 accent-cyan-400"
               />
-              <span className="ml-2">PDF</span>
+              <span className="ml-2 text-white text-sm">PDF</span>
             </label>
 
-            <label>
+            <label className="flex items-center cursor-pointer hover:bg-white/5 px-2 py-1 rounded transition-all">
               <input
                 type="checkbox"
                 checked={exportExcel}
                 onChange={() => setExportExcel(!exportExcel)}
+                className="w-4 h-4 accent-cyan-400"
               />
-              <span className="ml-2">Excel</span>
+              <span className="ml-2 text-white text-sm">Excel</span>
             </label>
           </div>
         </div>
 
         {/* BOTONES */}
-        <div className="flex justify-between mt-6">
+        <div className="flex gap-3 mt-4">
           <button
-            className="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded"
+            className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg font-semibold text-white text-sm border border-white/30 transition-all"
             onClick={onClose}
           >
             Cancelar
           </button>
 
           <button
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded font-bold"
+            className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg font-bold text-white text-sm shadow-lg border border-white/30 transition-all transform hover:scale-105"
             onClick={handleConfirm}
           >
             Exportar
