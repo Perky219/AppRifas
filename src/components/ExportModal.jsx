@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from 'motion/react';
 import fondo from '../assets/fondo.jpeg';
 
 function ExportModal({ onClose, onConfirm }) {
@@ -33,7 +34,11 @@ function ExportModal({ onClose, onConfirm }) {
   };
 
   return (
-    <div 
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }} 
       className="fixed inset-0 flex justify-center items-center z-50 p-4"
       style={{
         backgroundImage: `url(${fondo})`,
@@ -43,10 +48,21 @@ function ExportModal({ onClose, onConfirm }) {
       }}
     >
       {/* Overlay con gradiente */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900/80"></div>
+      <motion.div 
+        className="absolute inset-0 bg-gradient-to-b from-slate-900/80 via-slate-900/70 to-slate-900/80"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      ></motion.div>
       
       {/* Modal con glassmorphism */}
-      <div className="relative bg-white/10 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md shadow-2xl border border-cyan-400/30 max-h-[85vh] overflow-y-auto">
+      <motion.div 
+        className="relative bg-white/10 backdrop-blur-xl p-6 rounded-2xl w-full max-w-md shadow-2xl border border-cyan-400/30 max-h-[85vh] overflow-y-auto"
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.9, opacity: 0, y: 20 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
         <h2 className="text-2xl font-bold mb-4 text-center text-cyan-300 drop-shadow-lg">
           Exportar Ganadores
         </h2>
@@ -153,23 +169,32 @@ function ExportModal({ onClose, onConfirm }) {
         </div>
 
         {/* BOTONES */}
-        <div className="flex gap-3 mt-4">
-          <button
+        <motion.div 
+          className="flex gap-3 mt-4"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <motion.button
             className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-lg font-semibold text-white text-sm border border-white/30 transition-all"
             onClick={onClose}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             Cancelar
-          </button>
+          </motion.button>
 
-          <button
-            className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg font-bold text-white text-sm shadow-lg border border-white/30 transition-all transform hover:scale-105"
+          <motion.button
+            className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-lg font-bold text-white text-sm shadow-lg border border-white/30 transition-all"
             onClick={handleConfirm}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             Exportar
-          </button>
-        </div>
-      </div>
-    </div>
+          </motion.button>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
