@@ -35,25 +35,24 @@ function App() {
     reader.readAsText(file);
   };
 
-  const calcularGanadores = () => {
-    const participantes = [...socios];
-    const premiosLista = [...premios];
-
-    participantes.sort(() => Math.random() - 0.5);
-    premiosLista.sort(() => Math.random() - 0.5);
-
-    const cantidad = Math.min(participantes.length, premiosLista.length);
-    const resultados = [];
-
-    for (let i = 0; i < cantidad; i++) {
-      resultados.push({
-        cedula: participantes[i][0],
-        nombre: participantes[i][1],
-        premio: premiosLista[i][1],
-      });
+  const shuffle = (array) => {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+    return arr;
+  };
 
-    return resultados;
+  const calcularGanadores = () => {
+    const participantes = shuffle(socios);
+    const premiosLista = shuffle(premios);
+    const cantidad = Math.min(participantes.length, premiosLista.length);
+    return Array.from({ length: cantidad }, (_, i) => ({
+      cedula: participantes[i][0],
+      nombre: participantes[i][1],
+      premio: premiosLista[i][1],
+    }));
   };
 
   const rifaInstantanea = () => {
