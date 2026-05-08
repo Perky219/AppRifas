@@ -76,6 +76,18 @@ function App() {
     }, 3500);
   };
 
+  const reiniciar = () => {
+    setSocios(null);
+    setPremios(null);
+    setSociosError(null);
+    setPremiosError(null);
+    setGanadores(null);
+    setModoRifa(null);
+    setIndiceActual(0);
+    setMostrarModal(false);
+    setExportando(false);
+  };
+
   const rifaProgresiva = () => {
     setModoRifa("progresiva");
     setIndiceActual(1);
@@ -181,21 +193,34 @@ function App() {
               </motion.button>
             )}
 
-            {/* BOTÓN EXPORTAR */}
+            {/* BOTONES EXPORTAR + NUEVA RIFA */}
             {rifaTerminada && (
               <>
-                <motion.button
-                  className={`mt-8 px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-lg text-xl font-bold shadow-lg transition-opacity ${exportando ? "opacity-60 cursor-not-allowed" : ""}`}
-                  onClick={() => setMostrarModal(true)}
-                  disabled={exportando}
+                <motion.div
+                  className="mt-8 flex flex-col items-center gap-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  whileHover={exportando ? {} : { scale: 1.05 }}
-                  whileTap={exportando ? {} : { scale: 0.95 }}
                 >
-                  {exportando ? "Exportando..." : "Exportar"}
-                </motion.button>
+                  <motion.button
+                    className={`px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-lg text-xl font-bold shadow-lg transition-opacity ${exportando ? "opacity-60 cursor-not-allowed" : ""}`}
+                    onClick={() => setMostrarModal(true)}
+                    disabled={exportando}
+                    whileHover={exportando ? {} : { scale: 1.05 }}
+                    whileTap={exportando ? {} : { scale: 0.95 }}
+                  >
+                    {exportando ? "Exportando..." : "Exportar"}
+                  </motion.button>
+
+                  <motion.button
+                    className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/30 rounded-lg font-semibold text-white"
+                    onClick={reiniciar}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Nueva Rifa
+                  </motion.button>
+                </motion.div>
 
                 <AnimatePresence>
                   {mostrarModal && (
