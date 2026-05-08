@@ -1,7 +1,7 @@
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
-
 export async function generarExcel(datos, ganadores) {
+  const { default: ExcelJS } = await import("exceljs");
+  const { saveAs } = await import("file-saver");
+
   const workbook = new ExcelJS.Workbook();
   const sheet = workbook.addWorksheet("Ganadores");
 

@@ -8,4 +8,18 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  build: {
+    // exceljs is inherently ~941KB; it loads lazily on export only
+    chunkSizeWarningLimit: 1024,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-react": ["react", "react-dom"],
+          "vendor-motion": ["motion"],
+          "vendor-pdf": ["jspdf", "jspdf-autotable"],
+          "vendor-excel": ["exceljs", "file-saver"],
+        },
+      },
+    },
+  },
 })

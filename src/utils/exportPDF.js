@@ -1,6 +1,3 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-
 function fileToBase64(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -10,6 +7,9 @@ function fileToBase64(file) {
 }
 
 export async function generarPDF(datos, ganadores) {
+  const { default: jsPDF } = await import("jspdf");
+  const { default: autoTable } = await import("jspdf-autotable");
+
   const { logoFile, centro, up, actividad } = datos;
 
   const doc = new jsPDF({

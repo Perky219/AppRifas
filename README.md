@@ -1,16 +1,31 @@
-# React + Vite
+# Sistema de Rifas — ASECCSS Huetar Norte
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web para realizar sorteos de forma instantánea o progresiva, con exportación de resultados a PDF y Excel.
 
-Currently, two official plugins are available:
+## Funcionalidades
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Carga de participantes y premios mediante archivos CSV
+- Dos modos de sorteo: instantáneo y progresivo (ganador por ganador)
+- Exportación de resultados en PDF y Excel con logo personalizado
+- Validación de archivos CSV con mensajes de error descriptivos
+- Botón "Nueva Rifa" para reiniciar sin recargar la página
 
-## React Compiler
+## Formato CSV
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Participantes** — dos columnas: `cédula,nombre`
 
-## Expanding the ESLint configuration
+**Premios** — dos columnas: `id,descripción`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Desarrollo
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```
