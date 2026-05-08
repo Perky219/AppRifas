@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Papa from "papaparse";
 import { motion, AnimatePresence } from 'motion/react';
 import ExportModal from "./components/ExportModal";
 import WelcomePage from "./components/WelcomePage";
@@ -22,17 +23,26 @@ function App() {
 
   const [mostrarModal, setMostrarModal] = useState(false);
 
-  const leerCSV = (file, setState) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const texto = event.target.result;
-      const filas = texto
-        .trim()
-        .split("\n")
-        .map((line) => line.split(","));
-      setState(filas);
-    };
-    reader.readAsText(file);
+  const [sociosError, setSociosError] = useState(null);
+  const [premiosError, setPremiosError] = useState(null);
+
+  const leerCSV = (file, setState, setError) => {
+    setError(null);
+    Papa.parse(file, {
+      skipEmptyLines: true,
+      complete: ({ data }) => {
+        if (data.length === 0) {
+          setError("El archivo está vacío.");
+          return;
+        }
+        if (data.some((row) => row.length < 2 || !row[0]?.trim() || !row[1]?.trim())) {
+          setError("Formato inválido: cada fila debe tener al menos dos columnas.");
+          return;
+        }
+        setState(data);
+      },
+      error: () => setError("No se pudo leer el archivo. Verifica que sea un CSV válido."),
+    });
   };
 
   const shuffle = (array) => {
@@ -314,19 +324,24 @@ function App() {
               </h2>
 
               {!Array.isArray(socios) && (
-                <motion.label 
-                  className="mx-auto px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 transition rounded-lg text-lg cursor-pointer shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Subir CSV
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={(e) => leerCSV(e.target.files[0], setSocios)}
-                  />
-                </motion.label>
+                <div className="flex flex-col items-center">
+                  <motion.label
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 transition rounded-lg text-lg cursor-pointer shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Subir CSV
+                    <input
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={(e) => leerCSV(e.target.files[0], setSocios, setSociosError)}
+                    />
+                  </motion.label>
+                  {sociosError && (
+                    <p className="text-red-400 text-sm mt-3 text-center">{sociosError}</p>
+                  )}
+                </div>
               )}
 
               {Array.isArray(socios) && (
@@ -369,19 +384,24 @@ function App() {
               </h2>
 
               {!Array.isArray(premios) && (
-                <motion.label 
-                  className="mx-auto px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 transition rounded-lg text-lg cursor-pointer shadow-lg"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Subir CSV
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    onChange={(e) => leerCSV(e.target.files[0], setPremios)}
-                  />
-                </motion.label>
+                <div className="flex flex-col items-center">
+                  <motion.label
+                    className="px-6 py-3 bg-gradient-to-r from-sky-500 to-cyan-500 hover:from-sky-600 hover:to-cyan-600 transition rounded-lg text-lg cursor-pointer shadow-lg"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Subir CSV
+                    <input
+                      type="file"
+                      accept=".csv"
+                      className="hidden"
+                      onChange={(e) => leerCSV(e.target.files[0], setPremios, setPremiosError)}
+                    />
+                  </motion.label>
+                  {premiosError && (
+                    <p className="text-red-400 text-sm mt-3 text-center">{premiosError}</p>
+                  )}
+                </div>
               )}
 
               {Array.isArray(premios) && (
