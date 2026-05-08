@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from 'motion/react';
 import fondo from '../assets/fondo.jpeg';
 
 function ExportModal({ onClose, onConfirm }) {
   const [logo, setLogo] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
+  const logoUrlRef = useRef(null);
 
   const [centro, setCentro] = useState("");
   const [up, setUp] = useState("");
@@ -13,12 +14,20 @@ function ExportModal({ onClose, onConfirm }) {
   const [exportPDF, setExportPDF] = useState(false);
   const [exportExcel, setExportExcel] = useState(false);
 
+  useEffect(() => {
+    return () => {
+      if (logoUrlRef.current) URL.revokeObjectURL(logoUrlRef.current);
+    };
+  }, []);
+
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setLogoFile(file);
-      setLogo(URL.createObjectURL(file));
-    }
+    if (!file) return;
+    if (logoUrlRef.current) URL.revokeObjectURL(logoUrlRef.current);
+    const url = URL.createObjectURL(file);
+    logoUrlRef.current = url;
+    setLogoFile(file);
+    setLogo(url);
   };
 
   const handleConfirm = () => {

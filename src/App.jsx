@@ -22,6 +22,7 @@ function App() {
   const [indiceActual, setIndiceActual] = useState(0);
 
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [exportando, setExportando] = useState(false);
 
   const [sociosError, setSociosError] = useState(null);
   const [premiosError, setPremiosError] = useState(null);
@@ -184,15 +185,16 @@ function App() {
             {rifaTerminada && (
               <>
                 <motion.button
-                  className="mt-8 px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-lg text-xl font-bold shadow-lg"
+                  className={`mt-8 px-10 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 rounded-lg text-xl font-bold shadow-lg transition-opacity ${exportando ? "opacity-60 cursor-not-allowed" : ""}`}
                   onClick={() => setMostrarModal(true)}
+                  disabled={exportando}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={exportando ? {} : { scale: 1.05 }}
+                  whileTap={exportando ? {} : { scale: 0.95 }}
                 >
-                  Exportar
+                  {exportando ? "Exportando..." : "Exportar"}
                 </motion.button>
 
                 <AnimatePresence>
@@ -201,13 +203,12 @@ function App() {
                       onClose={() => setMostrarModal(false)}
                       onConfirm={async (datos) => {
                         setMostrarModal(false);
-
-                        if (datos.exportExcel) {
-                          await generarExcel(datos, ganadores);
-                        }
-
-                        if (datos.exportPDF) {
-                          await generarPDF(datos, ganadores);
+                        setExportando(true);
+                        try {
+                          if (datos.exportExcel) await generarExcel(datos, ganadores);
+                          if (datos.exportPDF) await generarPDF(datos, ganadores);
+                        } finally {
+                          setExportando(false);
                         }
                       }}
                     />
